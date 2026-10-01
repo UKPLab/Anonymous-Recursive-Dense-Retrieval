@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recursive-dense-retrieval"
+version = "0.1.0"
+description = "Recursive Dense Retrieval (RDR): one instruction-conditioned encoder, recursive search (tree, beam, chain, breadth) and a global readout over all search states."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Anonymous" }]
+keywords = ["dense retrieval", "multi-hop retrieval", "sentence-transformers", "embeddings", "search"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: Apache Software License",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Text Processing :: Indexing",
+]
+dependencies = [
+  "numpy>=1.22",
+  "torch>=2.1",
+  "sentence-transformers>=3.0,<6",  # 6.x changes tokenization of plain checkpoints; see encoder.load_sentence_transformer
+  "transformers>=4.51",
+  "tqdm",
+]
+
+[project.optional-dependencies]
+eval = ["datasets>=2.18", "pyyaml>=6"]
+dev = ["pytest>=7", "ruff>=0.4", "pyyaml>=6"]
+
+[project.urls]
+Homepage = "https://anonymous.4open.science/w/Recursive-Dense-Retrieval/"
+Repository = "https://anonymous.4open.science/r/Recursive-Dense-Retrieval"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+rdr = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py39"

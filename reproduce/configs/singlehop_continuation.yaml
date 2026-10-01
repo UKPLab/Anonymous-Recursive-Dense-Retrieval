@@ -1,0 +1,19 @@
+# Single-hop trees driven by the continuation (next-document) instruction: prefixes of one b = 3 tree
+# (Table 14). nDCG@10.
+name: singlehop_continuation
+prompts: single-hop-continuation
+suites: [bright, nanobeir, toolret, topiocqa]
+query_max_length: 4096
+document_max_length: 8192
+runs:
+  - name: tree
+    search: {name: tree, depth: 4, branching: 3, dedup: none}
+    readouts:
+      global_h2: {name: global, levels: [1, 2]}
+      global_h3: {name: global, levels: [1, 2, 3]}
+      global: global
+expected:
+  metric: ndcg@10
+  tree/global_h2: {bright: 30.90, nanobeir: 67.65, toolret: 47.73, topiocqa: 68.32, source: "Table 14"}
+  tree/global_h3: {bright: 31.09, nanobeir: 68.05, toolret: 48.07, topiocqa: 69.89, source: "Table 14"}
+  tree/global:    {bright: 31.12, nanobeir: 67.96, toolret: 48.15, topiocqa: 70.20, source: "Table 14"}

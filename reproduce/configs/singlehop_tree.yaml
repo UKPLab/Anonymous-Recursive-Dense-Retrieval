@@ -1,0 +1,23 @@
+# Single-hop: the recovery tree RDR(4, 3) of Table 2 on all queries (CoIR: all 20 subsplits), plus the
+# TopiOCQA prefix ladder of Table 6 read from the same traversal. nDCG@10 (binary gains).
+# Suite aggregation: BRIGHT and NanoBEIR task macro; ToolRet 35-group macro; CoIR ten-dataset macro;
+# TopiOCQA query mean.
+name: singlehop_tree
+prompts: single-hop
+suites: [bright, nanobeir, toolret, coir, topiocqa]
+query_max_length: 4096
+document_max_length: 8192
+runs:
+  - name: tree
+    search: {name: tree, depth: 4, branching: 3, dedup: none}
+    readouts:
+      root: root
+      global: global
+      global_h2: {name: global, levels: [1, 2]}
+      global_h3: {name: global, levels: [1, 2, 3]}
+expected:
+  metric: ndcg@10
+  tree/root:      {bright: 29.02, nanobeir: 66.55, toolret: 46.45, coir: 78.77, topiocqa: 63.37, mean: 56.83, source: "Tables 2, 5"}
+  tree/global:    {bright: 30.84, nanobeir: 68.13, toolret: 48.04, coir: 78.88, topiocqa: 70.79, mean: 59.34, source: "Tables 2, 5"}
+  tree/global_h2: {topiocqa: 70.75, source: "Table 6"}
+  tree/global_h3: {topiocqa: 70.81, source: "Table 6"}

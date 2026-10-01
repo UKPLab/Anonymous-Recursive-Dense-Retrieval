@@ -1,0 +1,52 @@
+# Multi-hop: one RDR(4, 3) traversal per suite, read out by every readout of Tables 1, 3b, 15, 19, 20 and 21.
+# Expected values are Recall@5 (and Recall@10 where the paper reports it), copied from the paper.
+name: multihop_tree
+prompts: multi-hop
+suites: [musique, browsecomp, fanoutqa, frames]
+query_max_length: 4096
+document_max_length: 512
+runs:
+  - name: tree
+    search: {name: tree, depth: 4, branching: 3}
+    readouts:
+      root: root                                           # RDR(1, 0), q0
+      global: global                                       # RDR(4, 3), the primary readout (C)
+      global_h2: {name: global, levels: [1, 2]}            # RDR(2, 3): prefix of the same run
+      global_h3: {name: global, levels: [1, 2, 3]}         # RDR(3, 3)
+      recovery: recovery_fusion                            # + recovery (z-agreement)
+      recovery_alone: recovery                             # recovery views only
+      assembly: {name: assembly, pool: 50, n: 10}          # + Assembly
+      path_product: path_product                           # A
+      path_recovery: path_recovery_fusion                  # A + R
+      mdr: sequence_sum                                    # MDR sequence sum, on E
+      selected: {name: global, restrict_to_selected: true}                       # B
+      selected_noroot: {name: global, restrict_to_selected: true, include_root: false}   # B - root
+      rrf: rrf
+      rrf_level: rrf_level
+      rrf_postorder: rrf_postorder
+      borda: borda
+expected:
+  metric: recall@5
+  tree/root:            {musique: 58.51, browsecomp: 16.87, fanoutqa: 28.63, frames: 66.77, mean: 42.70, source: "Tables 1, 30"}
+  tree/global:          {musique: 80.14, browsecomp: 25.28, fanoutqa: 37.78, frames: 77.41, mean: 55.15, source: "Tables 1, 21 (C)"}
+  tree/global_h2:       {musique: 75.90, browsecomp: 21.78, fanoutqa: 33.19, frames: 76.05, source: "Table 15"}
+  tree/global_h3:       {musique: 79.91, browsecomp: 24.07, fanoutqa: 36.34, frames: 78.15, source: "Table 15"}
+  tree/recovery:        {musique: 81.45, browsecomp: 25.28, fanoutqa: 40.66, frames: 77.89, mean: 56.32, source: "Tables 1, 19 (C+R)"}
+  tree/recovery_alone:  {musique: 80.47, browsecomp: 24.73, fanoutqa: 40.31, frames: 76.22, source: "Table 20"}
+  tree/assembly:        {musique: 79.62, browsecomp: 23.63, fanoutqa: 49.29, frames: 79.20, source: "Table 1"}
+  tree/path_product:    {musique: 75.97, browsecomp: 21.63, fanoutqa: 36.44, frames: 76.71, mean: 52.69, source: "Tables 19, 21 (A)"}
+  tree/path_recovery:   {musique: 79.91, browsecomp: 24.24, fanoutqa: 41.68, frames: 79.18, mean: 56.25, source: "Table 19 (A+R)"}
+  tree/mdr:             {musique: 57.55, browsecomp: 16.32, fanoutqa: 45.64, frames: 72.14, mean: 47.91, source: "Table 21"}
+  tree/selected:        {musique: 80.14, browsecomp: 25.28, fanoutqa: 38.00, frames: 77.43, mean: 55.21, source: "Tables 19, 21 (B)"}
+  tree/selected_noroot: {musique: 76.27, browsecomp: 25.17, fanoutqa: 39.30, frames: 70.62, mean: 52.84, source: "Table 21"}
+  tree/rrf:             {mean: 40.05, source: "Table 21"}
+  tree/rrf_level:       {mean: 42.60, source: "Table 21"}
+  tree/rrf_postorder:   {mean: 41.86, source: "Table 21"}
+  tree/borda:           {mean: 37.20, source: "Table 21"}
+expected_r10:
+  tree/root:        {musique: 65.99, browsecomp: 23.10, fanoutqa: 42.72, frames: 76.83}
+  tree/global:      {musique: 87.41, browsecomp: 33.38, fanoutqa: 57.07, frames: 86.28}
+  tree/global_h2:   {musique: 82.23, browsecomp: 29.76, fanoutqa: 50.10, frames: 84.49}
+  tree/global_h3:   {musique: 87.24, browsecomp: 32.27, fanoutqa: 54.49, frames: 86.44}
+  tree/recovery:    {musique: 87.56, browsecomp: 35.02, fanoutqa: 60.26, frames: 87.21}
+  tree/assembly:    {musique: 82.86, browsecomp: 30.23, fanoutqa: 63.52, frames: 83.43}

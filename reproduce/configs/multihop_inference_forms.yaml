@@ -1,0 +1,58 @@
+# Multi-hop inference forms of prior work with RDR's encoder (Tables 3a/3b, 15, 30, 32, 33), Recall@5.
+name: multihop_inference_forms
+prompts: multi-hop
+suites: [musique, browsecomp, fanoutqa, frames]
+query_max_length: 4096
+document_max_length: 512
+runs:
+  - name: chain
+    search: {name: chain, depth: 4}
+    readouts:
+      global: global
+      terminal: terminal
+      interp_0.8: {name: root_interpolation, lam: 0.8}    # as in DC-PRF
+      interp_0.5: {name: root_interpolation, lam: 0.5}
+      interp_0.2: {name: root_interpolation, lam: 0.2}
+  - name: feedback
+    search: {name: joint_feedback, m: 3}                  # as in ANCE-PRF
+    readouts:
+      state: {name: state, level: 2}
+  - name: beam5
+    search: {name: beam, width: 5, depth: 4}
+    readouts: {global: global, path_product: path_product, beamdr: probability_chain, mdr: sequence_sum}
+  - name: beam10
+    search: {name: beam, width: 10, depth: 4}
+    readouts: {global: global}
+  - name: beam13
+    search: {name: beam, width: 13, depth: 4}
+    readouts: {global: global, path_product: path_product, beamdr: probability_chain, mdr: sequence_sum}
+  - name: doc_as_query
+    search: {name: doc_as_query, depth: 4, branching: 3}
+    readouts: {global: global, cor: rrf_postorder}        # cor: as in COR
+  - name: breadth12
+    search: {name: breadth, width: 12}
+    readouts: {global: global}
+  - name: breadth39
+    search: {name: breadth, width: 39}
+    readouts: {global: global}
+expected:
+  metric: recall@5
+  chain/global:        {musique: 80.72, browsecomp: 23.13, fanoutqa: 37.70, frames: 74.09, mean: 53.91, source: "Table 30"}
+  chain/terminal:      {musique: 36.27, browsecomp: 17.46, fanoutqa: 28.98, frames: 46.06, mean: 32.19, source: "Table 30"}
+  chain/interp_0.8:    {musique: 61.73, browsecomp: 18.93, fanoutqa: 29.42, frames: 68.62, mean: 44.68, source: "Table 30"}
+  chain/interp_0.5:    {musique: 64.91, browsecomp: 20.77, fanoutqa: 31.29, frames: 64.38, mean: 45.34, source: "Table 30"}
+  chain/interp_0.2:    {musique: 48.86, browsecomp: 19.58, fanoutqa: 29.91, frames: 53.09, mean: 37.86, source: "Table 30"}
+  feedback/state:      {musique: 49.35, browsecomp: 21.14, fanoutqa: 32.17, frames: 49.93, mean: 38.15, source: "Table 30"}
+  beam5/global:        {musique: 80.27, browsecomp: 25.60, fanoutqa: 37.57, frames: 76.01, mean: 54.86, source: "Tables 30, 33"}
+  beam5/path_product:  {musique: 58.89, browsecomp: 16.87, fanoutqa: 28.63, frames: 66.83, source: "Table 33"}
+  beam5/beamdr:        {musique: 55.51, browsecomp: 15.35, fanoutqa: 45.09, frames: 69.24, mean: 46.30, source: "Tables 3a, 33"}
+  beam5/mdr:           {musique: 53.94, browsecomp: 13.17, fanoutqa: 44.41, frames: 67.37, mean: 44.72, source: "Tables 3a, 33"}
+  beam10/global:       {musique: 79.03, browsecomp: 25.00, fanoutqa: 37.00, frames: 76.09, mean: 54.28, source: "Table 30"}
+  beam13/global:       {musique: 78.59, browsecomp: 24.32, fanoutqa: 37.11, frames: 75.50, mean: 53.88, source: "Tables 30, 33"}
+  beam13/path_product: {musique: 58.74, browsecomp: 16.87, fanoutqa: 28.63, frames: 66.83, mean: 42.77, source: "Tables 3b, 33"}
+  beam13/beamdr:       {musique: 48.17, browsecomp: 12.23, fanoutqa: 41.30, frames: 60.81, mean: 40.63, source: "Tables 3a, 33"}
+  beam13/mdr:          {musique: 47.12, browsecomp: 9.54, fanoutqa: 40.86, frames: 58.41, mean: 38.98, source: "Tables 3a, 33"}
+  doc_as_query/global: {musique: 57.14, browsecomp: 18.01, fanoutqa: 26.19, frames: 60.30, mean: 40.41, source: "Table 32"}
+  doc_as_query/cor:    {musique: 40.93, browsecomp: 10.27, fanoutqa: 25.02, frames: 44.07, mean: 30.08, source: "Table 32"}
+  breadth12/global:    {musique: 71.23, browsecomp: 20.38, fanoutqa: 32.77, frames: 73.30, source: "Table 15"}
+  breadth39/global:    {musique: 66.92, browsecomp: 19.41, fanoutqa: 31.29, frames: 70.12, source: "Table 15"}

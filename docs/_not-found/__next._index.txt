@@ -1,0 +1,5 @@
+1:"$Sreact.fragment"
+2:I[4493,[],""]
+3:I[905,[],""]
+:HL["/w/Recursive-Dense-Retrieval/_next/static/css/2fa43adbc36ba480.css","style"]
+0:{"buildId":"oSUqOkKaIq6kX-AcCK-br","rsc":["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/w/Recursive-Dense-Retrieval/_next/static/css/2fa43adbc36ba480.css","precedence":"next"}]],["$","html",null,{"lang":"en","suppressHydrationWarning":true,"children":["$","body",null,{"className":"__variable_10c2fa __variable_7c9c3d antialiased","children":[["$","script",null,{"src":"/w/Recursive-Dense-Retrieval/anon-data-shim.js"}],["$","$L2",null,{"parallelRouterKey":"children","template":["$","$L3",null,{}]}]]}]}]]}],"loading":null,"isPartial":false}

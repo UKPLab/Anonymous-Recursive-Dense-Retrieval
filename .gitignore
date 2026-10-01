@@ -1,0 +1,25 @@
+# environments and caches
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+/build/
+/dist/
+.DS_Store
+
+# local runs (see reproduce/README.md); anchored to the repo root so docs/data/ (the website) is kept
+/data/
+/results/
+/index_cache/
+hf_cache/
+
+# internal review notes (keep out of the public repo)
+CONFIGURATION_REVIEW*.md
+QC_*.md
+# parity harness against the internal evaluation code (not public)
+reproduce/parity/
+
+# local backup of the previous README (not part of the release)
+legacy/

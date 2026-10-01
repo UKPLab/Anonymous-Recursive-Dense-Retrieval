@@ -1,0 +1,17 @@
+# Shallow breadth RDR(2, m) on single-hop suites (Table 2 ablation; Tables 11 and 16 use m = 12, 39).
+# A separate single-observation configuration: 2048-token query budget and its own paired root.
+# Not yet parity-checked against the paper's breadth runs.
+name: singlehop_breadth
+prompts: single-hop
+suites: [bright, nanobeir, toolret, coir, topiocqa]
+query_max_length: 2048
+document_max_length: 8192
+runs:
+  - {name: breadth2, search: {name: breadth, width: 2}, readouts: {root: root, global: global}}
+  - {name: breadth8, search: {name: breadth, width: 8}, readouts: {global: global}}
+  - {name: breadth16, search: {name: breadth, width: 16}, readouts: {global: global}}
+expected:
+  metric: ndcg@10
+  breadth2/global:  {bright: 29.90, nanobeir: 67.49, toolret: 47.62, coir: 78.79, topiocqa: 64.00, mean: 57.56, source: "Table 2"}
+  breadth8/global:  {bright: 30.16, nanobeir: 67.96, toolret: 48.08, coir: 78.84, topiocqa: 66.49, mean: 58.31, source: "Table 2"}
+  breadth16/global: {bright: 30.35, nanobeir: 68.01, toolret: 47.99, coir: 78.84, topiocqa: 66.73, mean: 58.38, source: "Table 2"}

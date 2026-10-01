@@ -1,0 +1,66 @@
+# Single-hop search x readout under one encoder (Tables 3, 24, 27), recovery instruction, nDCG@10.
+# CoIR on the paper's sample: up to 1,000 queries per subsplit (17,901 queries). Realized readouts are
+# completed with the root ranking (backfill), as in the paper.
+name: singlehop_readouts
+prompts: single-hop
+suites: [nanobeir, bright, topiocqa, toolret, coir]
+query_max_length: 4096
+document_max_length: 8192
+query_sample: {coir: 1000}
+query_sample_seed: 20260924   # the paper's seeded CoIR sample (17,901 queries)
+runs:
+  - name: tree
+    search: {name: tree, depth: 4, branching: 3, dedup: none}
+    readouts:
+      root: root
+      global: global
+      path_product: {name: path_product, backfill_root: true}
+      mdr: {name: sequence_sum, backfill_root: true}
+      selected: {name: global, restrict_to_selected: true, backfill_root: true}
+  - name: chain
+    search: {name: chain, depth: 4, dedup: none}
+    readouts:
+      global: global
+      terminal: terminal
+      interp_0.8: {name: root_interpolation, lam: 0.8}     # as in DC-PRF
+      interp_0.5: {name: root_interpolation, lam: 0.5}
+      interp_0.2: {name: root_interpolation, lam: 0.2}
+  - name: feedback
+    search: {name: joint_feedback, m: 3}                   # as in ANCE-PRF
+    readouts: {state: {name: state, level: 2}}
+  - name: beam5
+    search: {name: beam, width: 5, depth: 4}
+    readouts:
+      beamdr: {name: probability_chain, backfill_root: true}
+      mdr: {name: sequence_sum, backfill_root: true}
+  - name: beam13
+    search: {name: beam, width: 13, depth: 4}
+    readouts:
+      global: global
+      path_product: {name: path_product, backfill_root: true}
+      beamdr: {name: probability_chain, backfill_root: true}
+      mdr: {name: sequence_sum, backfill_root: true}
+  - name: doc_as_query
+    search: {name: doc_as_query, depth: 4, branching: 3, dedup: none}
+    readouts: {global: global, cor: rrf_postorder}
+expected:
+  metric: ndcg@10
+  tree/root:           {nanobeir: 66.55, bright: 28.99, topiocqa: 63.37, toolret: 46.44, coir: 78.57, mean: 56.78, source: "Table 24"}
+  tree/global:         {nanobeir: 68.13, bright: 30.81, topiocqa: 70.79, toolret: 48.11, coir: 78.87, mean: 59.34, source: "Tables 24, 27"}
+  tree/path_product:   {nanobeir: 67.20, bright: 29.63, topiocqa: 66.31, toolret: 47.24, coir: 77.87, mean: 57.65, source: "Table 27"}
+  tree/mdr:            {nanobeir: 60.93, bright: 28.14, topiocqa: 51.45, toolret: 44.31, coir: 72.56, mean: 51.48, source: "Table 27"}
+  tree/selected:       {nanobeir: 68.05, bright: 30.68, topiocqa: 70.68, toolret: 48.01, coir: 78.50, mean: 59.19, source: "Table 27 (B)"}
+  chain/global:        {nanobeir: 67.21, bright: 30.34, topiocqa: 66.86, toolret: 46.91, coir: 78.44, mean: 57.95, source: "Table 24"}
+  chain/terminal:      {nanobeir: 64.66, bright: 29.86, topiocqa: 56.47, toolret: 43.94, coir: 76.63, mean: 54.31, source: "Table 27"}
+  chain/interp_0.8:    {nanobeir: 66.90, bright: 29.25, topiocqa: 66.25, toolret: 46.66, coir: 78.79, mean: 57.57, source: "Table 24"}
+  chain/interp_0.5:    {nanobeir: 66.95, bright: 29.62, topiocqa: 66.93, toolret: 46.59, coir: 78.68, mean: 57.75, source: "Table 24"}
+  chain/interp_0.2:    {nanobeir: 66.19, bright: 29.89, topiocqa: 62.50, toolret: 45.51, coir: 77.77, mean: 56.37, source: "Table 24"}
+  feedback/state:      {nanobeir: 64.60, bright: 28.92, topiocqa: 46.44, toolret: 45.62, coir: 77.96, mean: 52.71, source: "Table 24"}
+  beam5/beamdr:        {nanobeir: 43.41, bright: 19.42, topiocqa: 29.85, toolret: 30.59, coir: 63.90, mean: 37.43, source: "Table 24"}
+  beam5/mdr:           {nanobeir: 42.42, bright: 19.52, topiocqa: 26.88, toolret: 29.97, coir: 63.28, mean: 36.41, source: "Table 24"}
+  beam13/global:       {nanobeir: 68.93, bright: 31.01, topiocqa: 71.55, toolret: 47.94, coir: 78.56, mean: 59.60, source: "Table 24"}
+  beam13/path_product: {nanobeir: 66.67, bright: 28.98, topiocqa: 63.38, toolret: 46.33, coir: 78.05, mean: 56.68, source: "Table 24"}
+  beam13/beamdr:       {nanobeir: 39.91, bright: 16.49, topiocqa: 30.29, toolret: 28.37, coir: 62.55, mean: 35.52, source: "Table 24"}
+  beam13/mdr:          {nanobeir: 38.05, bright: 16.31, topiocqa: 25.86, toolret: 27.38, coir: 61.34, mean: 33.79, source: "Table 24"}
+  doc_as_query/global: {nanobeir: 64.73, bright: 29.27, topiocqa: 61.70, toolret: 41.85, coir: 77.60, mean: 55.03, source: "Table 24"}
+  doc_as_query/cor:    {nanobeir: 46.96, bright: 17.48, topiocqa: 47.95, toolret: 30.28, coir: 42.18, mean: 36.97, source: "Table 24"}
